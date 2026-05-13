@@ -1,0 +1,42 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: composite
+  cloud:
+    config:
+      server:
+        composite:
+          - type: native
+            search-locations: file:./config-repo
+          - type: vault
+            host: ${VAULT_HOST:127.0.0.1}
+            port: ${VAULT_PORT:8200}
+            scheme: ${VAULT_SCHEME:http}
+            backend: ${VAULT_BACKEND:secret}
+            kv-version: 2
+            default-key: application
+            profile-separator: ','
+            # authentication: TOKEN switches to SpringVaultEnvironmentRepository
+            # (requires spring-vault-core on classpath). The actual token value is
+            # supplied by the ConfigTokenProvider @Bean in VaultTokenConfig.java —
+            # the `token:` field of VaultEnvironmentProperties is declared but never
+            # consumed at runtime in composite mode.
+            authentication: TOKEN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    org.springframework.cloud.config: INFO
+    org.springframework.vault: INFO
