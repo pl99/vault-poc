@@ -24,3 +24,5 @@ application-local.properties
 *.env
 .env
 .env.local
+
+/.veai/
