@@ -97,7 +97,6 @@ spring.profiles.active=dev
 ### 1. Поднять Vault в Docker
 
 ```powershell
-cd C:\wrk\svn\post-rf\vault-poc
 docker compose up -d
 docker compose ps
 ```
