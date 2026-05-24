@@ -184,13 +184,15 @@ curl http://localhost:8888/sample-service-prod.properties
 
 `application.yml` читает следующие переменные (с дефолтами):
 
-| Переменная       | Значение по умолчанию | Назначение                              |
-|------------------|-----------------------|-----------------------------------------|
-| `VAULT_HOST`     | `127.0.0.1`           | Хост Vault                              |
-| `VAULT_PORT`     | `8200`                | Порт Vault                              |
-| `VAULT_SCHEME`   | `http`                | Схема (`http`/`https`)                  |
-| `VAULT_BACKEND`  | `secret`              | Путь монтирования KV-движка             |
-| `VAULT_TOKEN`    | `root-token-poc`      | Токен для аутентификации Config Server  |
+| Переменная                           | Значение по умолчанию     | Назначение                                             |
+|--------------------------------------|---------------------------|--------------------------------------------------------|
+| `VAULT_HOST`                         | `127.0.0.1`              | Хост Vault                                             |
+| `VAULT_PORT`                         | `8200`                   | Порт Vault                                             |
+| `VAULT_SCHEME`                       | `http`                   | Схема (`http`/`https`)                                 |
+| `VAULT_BACKEND`                      | `secret`                 | Путь монтирования KV-движка                            |
+| `VAULT_TOKEN`                        | `root-token-poc`         | Токен для аутентификации Config Server                 |
+| `ENCRYPT_KEY`                        | `change-me-in-production`| Ключ для шифрования секретов в ответе                  |
+| `SECRET_ENCRYPTION_ENABLED`          | `true`                   | Включить/отключить шифрование секретов в ответе        |
 
 ## Как Config Server собирает ответ (composite backend)
 
@@ -251,3 +253,32 @@ docker compose down
 - ограничить политиками Vault доступ к путям `secret/data/<app>` ровно для тех
   ролей/токенов, которые в этом нуждаются;
 - защитить эндпоинты Config Server (basic auth / mTLS / OAuth2 resource server).
+
+## Шифрование секретов в ответе Config Server
+
+Config Server автоматически шифрует значения secret-ключей (содержащих `password`, `secret`, `.key`, `token`, `credential`) перед отправкой клиенту. В ответе такие значения выглядят как `{cipher}...`.
+
+### Отключение
+
+```powershell
+# через переменную окружения
+$env:SECRET_ENCRYPTION_ENABLED = "false"
+java -jar target/config-server-0.0.1-SNAPSHOT.jar
+
+# или через аргумент JVM
+java -jar target/config-server-0.0.1-SNAPSHOT.jar --config.server.secret-encryption.enabled=false
+```
+
+### Клиентское приложение
+
+Чтобы клиент автоматически расшифровывал `{cipher}`-значения, ему нужно указать тот же `encrypt.key`:
+
+```yaml
+# src/main/resources/bootstrap.yml
+encrypt:
+  key: change-me-in-production
+```
+
+Без этого ключа клиент получит зашифрованные значения как есть (строку `{cipher}...`).
+
+> **Важно:** `encrypt.key` должен быть одинаковым на Config Server и на всех клиентах. В production используйте защищённое хранилище для ключа (Vault, HashiCorp KMS, файл с ограниченным доступом), не храните его в репозитории.

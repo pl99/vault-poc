@@ -1,7 +1,6 @@
 package ru.postrf.vaultpoc.configserver;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.config.server.environment.ConfigTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +31,6 @@ import org.springframework.context.annotation.Configuration;
 public class VaultTokenConfig {
 
     @Bean
-    @ConditionalOnMissingBean(ConfigTokenProvider.class)
     public ConfigTokenProvider vaultStaticTokenProvider(
             @Value("${VAULT_TOKEN:root-token-poc}") String token) {
         return () -> token;

@@ -5,3 +5,11 @@ spring:
         composite:
           - type: native
             search-locations: file:./config-repo
+
+encrypt:
+  key: test-key-for-unit-tests
+
+config:
+  server:
+    secret-encryption:
+      enabled: true

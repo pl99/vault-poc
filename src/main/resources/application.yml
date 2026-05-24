@@ -36,6 +36,14 @@ management:
     health:
       show-details: when_authorized
 
+encrypt:
+  key: ${ENCRYPT_KEY:change-me-in-production}
+
+config:
+  server:
+    secret-encryption:
+      enabled: ${SECRET_ENCRYPTION_ENABLED:true}
+
 logging:
   level:
     org.springframework.cloud.config: INFO
