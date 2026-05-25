@@ -1,5 +1,6 @@
 package ru.postrf.vaultpoc.configserver;
 
+import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class SecretEncryptingAdvice implements ResponseBodyAdvice<Environment> {
 
     @Override
     public boolean supports(MethodParameter returnType,
-                            Class<? extends HttpMessageConverter<?>> converterType) {
+                            @Nonnull Class<? extends HttpMessageConverter<?>> converterType) {
         boolean supported = Environment.class.isAssignableFrom(returnType.getParameterType());
         log.debug("supports() called: returnType={}, supported={}",
                 returnType.getParameterType().getSimpleName(), supported);
@@ -48,11 +49,11 @@ public class SecretEncryptingAdvice implements ResponseBodyAdvice<Environment> {
 
     @Override
     public Environment beforeBodyWrite(Environment body,
-                                       MethodParameter returnType,
-                                       MediaType selectedContentType,
-                                       Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                       ServerHttpRequest request,
-                                       ServerHttpResponse response) {
+                                       @Nonnull MethodParameter returnType,
+                                       @Nonnull MediaType selectedContentType,
+                                       @Nonnull Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                       @Nonnull ServerHttpRequest request,
+                                       @Nonnull ServerHttpResponse response) {
         if (body == null) {
             log.warn("beforeBodyWrite: body is null");
             return null;
@@ -67,7 +68,8 @@ public class SecretEncryptingAdvice implements ResponseBodyAdvice<Environment> {
 
         int encryptedCount = 0;
         for (PropertySource ps : body.getPropertySources()) {
-            Map<String, String> source = (Map<String, String>) (Map) ps.getSource();
+            @SuppressWarnings("unchecked")
+            Map<String, String> source = (Map<String, String>) ps.getSource();
             log.debug("Processing PropertySource: {} ({} entries)", ps.getName(), source.size());
 
             for (Map.Entry<String, String> entry : source.entrySet()) {

@@ -42,7 +42,8 @@ encrypt:
 config:
   server:
     secret-encryption:
-      enabled: ${SECRET_ENCRYPTION_ENABLED:true}
+#      enabled: ${SECRET_ENCRYPTION_ENABLED:true}
+      enabled: false
 
 logging:
   level:
